@@ -1,5 +1,6 @@
 package com.epam.engx.cleancode.errorhandling.task1;
 
+import com.epam.engx.cleancode.errorhandling.task1.models.Report;
 import com.epam.engx.cleancode.errorhandling.task1.stubs.*;
 import com.epam.engx.cleancode.errorhandling.task1.thirdpartyjar.Model;
 import com.epam.engx.cleancode.errorhandling.task1.thirdpartyjar.Order;
@@ -47,18 +48,19 @@ public class UserReportControllerTest {
     public void shouldCalculateSumOfAllSubmittedOrders() {
 
         Model model = new ModelStub();
-        String amount = userReportController.getUserTotalOrderAmountView("123", model);
+        Report report = userReportController.getUserTotalOrderAmountReport("123");
+        model.addAttribute("userTotalMessage", report.getMessage());
 
-        Assert.assertEquals("userTotal", amount);
+        Assert.assertEquals("userTotal", report.getAmountType());
         Assert.assertEquals("User Total: 363.15$", model.getAttribute("userTotalMessage"));
     }
 
     @Test
     public void shouldGetWarningMessageWhenUserDoesntExist() {
         Model model = new ModelStub();
-        String amount = userReportController.getUserTotalOrderAmountView("0001", model);
-
-        Assert.assertEquals("userTotal", amount);
+        Report report = userReportController.getUserTotalOrderAmountReport("0001");
+        model.addAttribute("userTotalMessage", report.getMessage());
+        Assert.assertEquals("userTotal", report.getAmountType());
         Assert.assertEquals("WARNING: User ID doesn't exist.", model.getAttribute("userTotalMessage"));
     }
 
@@ -68,9 +70,9 @@ public class UserReportControllerTest {
         orders.add(new SubmittedNegativeOrderStub());
 
         Model model = new ModelStub();
-        String amount = userReportController.getUserTotalOrderAmountView("123", model);
-
-        Assert.assertEquals("userTotal", amount);
+        Report report = userReportController.getUserTotalOrderAmountReport("123");
+        model.addAttribute("userTotalMessage", report.getMessage());
+        Assert.assertEquals("userTotal", report.getAmountType());
         Assert.assertEquals("ERROR: Wrong order amount.", model.getAttribute("userTotalMessage"));
     }
 
@@ -81,9 +83,9 @@ public class UserReportControllerTest {
         orders.clear();
 
         Model model = new ModelStub();
-        String amount = userReportController.getUserTotalOrderAmountView("123", model);
-
-        Assert.assertEquals("userTotal", amount);
+        Report report  = userReportController.getUserTotalOrderAmountReport("123");
+        model.addAttribute("userTotalMessage", report.getMessage());
+        Assert.assertEquals("userTotal", report.getAmountType());
         Assert.assertEquals("WARNING: User have no submitted orders.", model.getAttribute("userTotalMessage"));
     }
 
@@ -92,8 +94,8 @@ public class UserReportControllerTest {
 
         userReportBuilder.setUserDao(null);
 
-        String amount = userReportController.getUserTotalOrderAmountView("123", new ModelStub());
+        Report report = userReportController.getUserTotalOrderAmountReport("123");
 
-        Assert.assertEquals("technicalError", amount);
+        Assert.assertEquals("technicalError", report.getMessage());
     }
 }

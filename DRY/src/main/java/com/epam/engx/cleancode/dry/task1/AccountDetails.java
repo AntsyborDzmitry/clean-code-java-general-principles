@@ -39,7 +39,7 @@ public class AccountDetails implements Account {
     }
 
     public int getAge() {
-        return age;       // should depend on current time
+        return age;
     }
 
     public void setAge(int age) {

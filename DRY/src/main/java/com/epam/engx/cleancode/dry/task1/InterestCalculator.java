@@ -9,7 +9,7 @@ import java.util.GregorianCalendar;
 
 public class InterestCalculator implements Profitable {
 
-    private static final int AGE = 60;
+    private static final int SENIOR_AGE_TRESHOLD = 60;
     private static final double INTEREST_PERCENT = 4.5d;
     private static final double SENIOR_PERCENT = 5.5d;
     private static final int BONUS_AGE = 13;
@@ -17,54 +17,53 @@ public class InterestCalculator implements Profitable {
 
 
     public BigDecimal calculateInterest(AccountDetails accountDetails) {
-        if (isAccountStartedAfterBonusAge(accountDetails)) {
-            return interest(accountDetails);
-        } else {
-            return BigDecimal.ZERO;
+        if (hasAccountBonus(accountDetails)) {
+            return BigDecimal.valueOf(getInterest(accountDetails));
         }
+        return BigDecimal.ZERO;
     }
 
-    private boolean isAccountStartedAfterBonusAge(AccountDetails accountDetails) {
-        return durationBetweenDatesInYears(accountDetails.getBirth(), accountDetails.getStartDate()) > BONUS_AGE;
+    private boolean hasAccountBonus(AccountDetails accountDetails) {
+        return getAccountAge(accountDetails) > BONUS_AGE;
     }
 
-    private int durationBetweenDatesInYears(Date from, Date to) {
-        Calendar startCalendar = new GregorianCalendar();
-        startCalendar.setTime(from);
-        Calendar endCalendar = new GregorianCalendar();
-        endCalendar.setTime(to);
-
-        int diffYear = endCalendar.get(Calendar.YEAR) - startCalendar.get(Calendar.YEAR);
-        if (endCalendar.get(Calendar.DAY_OF_YEAR) + LEAP_YEAR_SHIFT < startCalendar.get(Calendar.DAY_OF_YEAR))
-            return diffYear - 1;
-        return diffYear;
+    private int getAccountAge(AccountDetails accountDetails) {
+        return getYearsNumberBetweenDate(accountDetails.getBirth(), accountDetails.getStartDate());
     }
 
-    private BigDecimal interest(AccountDetails accountDetails) {
-        double interest = 0;
-        if (isAccountStartedAfterBonusAge(accountDetails)) {
-            if (AGE <= accountDetails.getAge()) {
-                //interest = (PrincipalAmount * DurationInYears * AnnualInterestRate) / 100
-                interest = accountDetails.getBalance().doubleValue()
-                        * durationSinceStartDateInYears(accountDetails.getStartDate()) * SENIOR_PERCENT / 100;
-            } else {
-                interest = accountDetails.getBalance().doubleValue()
-                        * durationSinceStartDateInYears(accountDetails.getStartDate()) * INTEREST_PERCENT / 100;
-            }
+    private int getYearsNumberBetweenDate(Date from, Date to) {
+        Calendar start = setupCalendar(from);
+        Calendar end = setupCalendar(to);
+
+        int diffYear = end.get(Calendar.YEAR) - start.get(Calendar.YEAR);
+        return hasPeriodLeapYear(start, end) ? diffYear - 1 : diffYear;
+    }
+
+    private Calendar setupCalendar(Date date) {
+        Calendar calendar = new GregorianCalendar();
+        calendar.setTime(date);
+        return calendar;
+    }
+
+    private boolean hasPeriodLeapYear(Calendar startCalendar, Calendar endCalendar) {
+        return endCalendar.get(Calendar.DAY_OF_YEAR) + LEAP_YEAR_SHIFT < startCalendar.get(Calendar.DAY_OF_YEAR);
+    }
+
+    private double getInterest(AccountDetails accountDetails) {
+        if (isAccountReachSeniorAge(accountDetails)) {
+            return getInterestBasedOnPercent(accountDetails, SENIOR_PERCENT);
         }
-        return BigDecimal.valueOf(interest);
+        return getInterestBasedOnPercent(accountDetails, INTEREST_PERCENT);
     }
 
-    private int durationSinceStartDateInYears(Date startDate) {
-        Calendar startCalendar = new GregorianCalendar();
-        startCalendar.setTime(startDate);
-        Calendar endCalendar = new GregorianCalendar();
-        endCalendar.setTime(new Date());
+    private boolean isAccountReachSeniorAge(AccountDetails accountDetails) {
+        return accountDetails.getAge() >= SENIOR_AGE_TRESHOLD;
+    }
 
-        int diffYear = endCalendar.get(Calendar.YEAR) - startCalendar.get(Calendar.YEAR);
-        if (endCalendar.get(Calendar.DAY_OF_YEAR) + LEAP_YEAR_SHIFT < startCalendar.get(Calendar.DAY_OF_YEAR))
-            return diffYear - 1;
-        return diffYear;
+    private double getInterestBasedOnPercent(AccountDetails accountDetails, double percent) {
+    double balance = accountDetails.getBalance().doubleValue();
+    int daysFormAccountCreation = getYearsNumberBetweenDate(accountDetails.getStartDate(), new Date());
 
+        return balance * daysFormAccountCreation * percent / 100;
     }
 }

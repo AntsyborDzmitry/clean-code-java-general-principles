@@ -1,36 +1,26 @@
 package com.epam.engx.cleancode.errorhandling.task1;
 
-import com.epam.engx.cleancode.errorhandling.task1.thirdpartyjar.Model;
+import com.epam.engx.cleancode.errorhandling.task1.models.Report;
 
 public class UserReportController {
 
+    private static final String USER_TOTAL_AMOUNT_TYPE = "userTotal";
     private UserReportBuilder userReportBuilder;
 
-    public String getUserTotalOrderAmountView(String userId, Model model){
-        String totalMessage = getUserTotalMessage(userId);
-        if (totalMessage == null)
-            return "technicalError";
-        model.addAttribute("userTotalMessage", totalMessage);
-        return "userTotal";
+    public Report getUserTotalOrderAmountReport(String userId){
+        Report report = new Report();
+        report.setAmountType(USER_TOTAL_AMOUNT_TYPE);
+        try {
+            report.setAmount(getUserTotalAmount(userId));
+        } catch (InvalidDaoException | ReportBuilderException e) {
+            report.setErrorMessage(e.getMessage());
+        }
+        return report;
     }
 
-    private String getUserTotalMessage(String userId) {
-
-        Double amount = userReportBuilder.getUserTotalOrderAmount(userId);
-
-        if (amount == null)
-            return null;
-
-        if (amount == -1)
-            return "WARNING: User ID doesn't exist.";
-        if (amount == -2)
-            return "WARNING: User have no submitted orders.";
-        if (amount == -3)
-            return "ERROR: Wrong order amount.";
-
-        return "User Total: " + amount + "$";
+    private double getUserTotalAmount(String userId) {
+        return userReportBuilder.getUserTotalOrderAmount(userId);
     }
-
 
     public UserReportBuilder getUserReportBuilder() {
         return userReportBuilder;
