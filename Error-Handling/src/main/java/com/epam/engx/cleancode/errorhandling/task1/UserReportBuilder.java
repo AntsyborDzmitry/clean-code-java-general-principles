@@ -17,26 +17,38 @@ public class UserReportBuilder {
 
     public double getUserTotalOrderAmount(String userId) {
 
-        if (userDao == null) {
-            throw new InvalidDaoException(TECHNICAL_ERROR_MESSAGE);
-        }
+        validateUserDaoOrThrow(userDao);
 
         User user = userDao.getUser(userId);
-        if (user == null) {
-            throw new ReportBuilderException(USER_ID_NOT_EXIST_WARNING_MESSAGE);
-        }
+        validateUserOrThrow(user);
 
         List<Order> orders = user.getAllOrders();
-        if (orders.isEmpty()) {
-            throw new ReportBuilderException(NO_SUBMITTED_ORDERS_WARNING_MESSAGE);
-        }
+        validateOrdersOrThrow(orders);
 
-        validateTotals(orders);
+        validateOrdersOnTotal(orders);
 
         return getSumOfTotalFromOrders(orders);
     }
 
-    private void validateTotals(List<Order> orders) {
+    private void validateUserDaoOrThrow(UserDao userDao) {
+        if (userDao == null) {
+            throw new InvalidDaoException(TECHNICAL_ERROR_MESSAGE);
+        }
+    }
+
+    private void validateUserOrThrow(User user) {
+        if (user == null) {
+            throw new ReportBuilderException(USER_ID_NOT_EXIST_WARNING_MESSAGE);
+        }
+    }
+
+    private void validateOrdersOrThrow(List<Order> orders) {
+        if (orders.isEmpty()) {
+            throw new ReportBuilderException(NO_SUBMITTED_ORDERS_WARNING_MESSAGE);
+        }
+    }
+
+    private void validateOrdersOnTotal(List<Order> orders) {
         for (Order order : orders) {
             if (order.isSubmitted()) {
                 validateTotal(order.total());
@@ -59,10 +71,7 @@ public class UserReportBuilder {
     }
 
     private double getTotalFromOrder(Order order) {
-        if (order.isSubmitted()) {
-            return order.total();
-        }
-        return 0d;
+        return order.isSubmitted() ? order.total() : 0d;
     }
 
     public void setUserDao(UserDao userDao) {

@@ -5,6 +5,7 @@ import com.epam.engx.cleancode.errorhandling.task1.models.Report;
 public class UserReportController {
 
     private static final String USER_TOTAL_AMOUNT_TYPE = "userTotal";
+
     private UserReportBuilder userReportBuilder;
 
     public Report getUserTotalOrderAmountReport(String userId) {
