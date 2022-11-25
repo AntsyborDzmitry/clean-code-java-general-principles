@@ -3,6 +3,10 @@ package com.epam.engx.cleancode.comments.task1;
 import com.epam.engx.cleancode.comments.task1.thirdpartyjar.InvalidInputException;
 
 public class MortgageInstallmentCalculator {
+
+    private static final int PERCENT_RATIO_CONVERTER = 100;
+    private static final int MONTHS_IN_YEAR = 12;
+
     private MortgageInstallmentCalculator() {
     }
 
@@ -36,18 +40,17 @@ public class MortgageInstallmentCalculator {
     }
 
     private static double convertPercentToDecimal(double rate) {
-        return rate / 100;
+        return rate / PERCENT_RATIO_CONVERTER;
     }
 
     private static int convertYearsToMonth(int years) {
-        return years * 12;
+        return years * MONTHS_IN_YEAR;
     }
 
     private static double calculatePayment(int principalAmount, double decimalRate, int mortgageDurationInMonth) {
-        if (isZeroRate(decimalRate)) {
-            return calculatePaymentForZeroRate(principalAmount, mortgageDurationInMonth);
-        }
-        return calculatePaymentForNormalRate(principalAmount, decimalRate, mortgageDurationInMonth);
+        return isZeroRate(decimalRate) ?
+                calculatePaymentForZeroRate(principalAmount, mortgageDurationInMonth) :
+                calculatePaymentForNormalRate(principalAmount, decimalRate, mortgageDurationInMonth);
     }
 
     private static boolean isZeroRate(double decimalRate) {
@@ -70,6 +73,6 @@ public class MortgageInstallmentCalculator {
     }
 
     private static double convertYearsRateToMonthlyRate(double yearsRate) {
-        return yearsRate / 12.0;
+        return yearsRate / MONTHS_IN_YEAR;
     }
 }

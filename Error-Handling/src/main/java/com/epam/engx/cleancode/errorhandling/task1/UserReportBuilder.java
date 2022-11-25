@@ -15,69 +15,54 @@ public class UserReportBuilder {
 
     private UserDao userDao;
 
-    public Double getUserTotalOrderAmount(String userId) {
-        validateDao();
-        User user = getUserFromDaoById(userId);
-        List<Order> orders = getUserOrders(user);
+    public double getUserTotalOrderAmount(String userId) {
+
+        if (userDao == null) {
+            throw new InvalidDaoException(TECHNICAL_ERROR_MESSAGE);
+        }
+
+        User user = userDao.getUser(userId);
+        if (user == null) {
+            throw new ReportBuilderException(USER_ID_NOT_EXIST_WARNING_MESSAGE);
+        }
+
+        List<Order> orders = user.getAllOrders();
+        if (orders.isEmpty()) {
+            throw new ReportBuilderException(NO_SUBMITTED_ORDERS_WARNING_MESSAGE);
+        }
+
+        validateTotals(orders);
 
         return getSumOfTotalFromOrders(orders);
     }
 
-    private void validateDao() {
-        if (userDao == null) {
-            throw new InvalidDaoException(TECHNICAL_ERROR_MESSAGE);
+    private void validateTotals(List<Order> orders) {
+        for (Order order : orders) {
+            if (order.isSubmitted()) {
+                validateTotal(order.total());
+            }
         }
     }
 
-    private User getUserFromDaoById(String userId) {
-        User user = userDao.getUser(userId);
-        validateUser(user);
-        return user;
-    }
-
-    private void validateUser(User user) {
-        if (user == null) {
-            throw new ReportBuilderException(USER_ID_NOT_EXIST_WARNING_MESSAGE);
+    private void validateTotal(double total) {
+        if (total < 0) {
+            throw new ReportBuilderException(WRONG_ORDER_AMOUNT_ERROR_MESSAGE);
         }
     }
 
-    private List<Order> getUserOrders(User user) {
-        List<Order> orders = user.getAllOrders();
-        validateOrders(orders);
-        return orders;
-    }
-
-    private void validateOrders(List<Order> orders) {
-        if (orders.isEmpty()) {
-            throw new ReportBuilderException(NO_SUBMITTED_ORDERS_WARNING_MESSAGE);
-        }
-    }
-
-    private Double getSumOfTotalFromOrders(List<Order> orders) {
-        Double sum = 0.0;
+    private double getSumOfTotalFromOrders(List<Order> orders) {
+        double sum = 0.0;
         for (Order order : orders) {
             sum += getTotalFromOrder(order);
         }
         return sum;
     }
 
-    private Double getTotalFromOrder(Order order) {
+    private double getTotalFromOrder(Order order) {
         if (order.isSubmitted()) {
-            Double total = order.total();
-            validateTotal(total);
-            return total;
+            return order.total();
         }
         return 0d;
-    }
-
-    private void validateTotal(Double total) {
-        if (total < 0) {
-            throw new ReportBuilderException(WRONG_ORDER_AMOUNT_ERROR_MESSAGE);
-        }
-    }
-
-    public UserDao getUserDao() {
-        return userDao;
     }
 
     public void setUserDao(UserDao userDao) {

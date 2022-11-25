@@ -7,23 +7,17 @@ public class UserReportController {
     private static final String USER_TOTAL_AMOUNT_TYPE = "userTotal";
     private UserReportBuilder userReportBuilder;
 
-    public Report getUserTotalOrderAmountReport(String userId){
-        Report report = new Report();
-        report.setAmountType(USER_TOTAL_AMOUNT_TYPE);
+    public Report getUserTotalOrderAmountReport(String userId) {
+        double amount = 0d;
+        String errorMessage = "";
+
         try {
-            report.setAmount(getUserTotalAmount(userId));
+            amount = userReportBuilder.getUserTotalOrderAmount(userId);
         } catch (InvalidDaoException | ReportBuilderException e) {
-            report.setErrorMessage(e.getMessage());
+            errorMessage = e.getMessage();
         }
-        return report;
-    }
 
-    private double getUserTotalAmount(String userId) {
-        return userReportBuilder.getUserTotalOrderAmount(userId);
-    }
-
-    public UserReportBuilder getUserReportBuilder() {
-        return userReportBuilder;
+        return new Report(amount, USER_TOTAL_AMOUNT_TYPE, errorMessage);
     }
 
     public void setUserReportBuilder(UserReportBuilder userReportBuilder) {

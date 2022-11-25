@@ -1,15 +1,7 @@
 package com.epam.engx.cleancode.errorhandling.task1;
 
-public class InvalidDaoException extends RuntimeException{
-    final String message;
-    public InvalidDaoException(String s) {
-        super();
-        this.message = s;
+public class InvalidDaoException extends RuntimeException {
+    public InvalidDaoException(String message) {
+        super(message);
     }
-
-    @Override
-    public String getMessage() {
-        return message;
-    }
-
 }

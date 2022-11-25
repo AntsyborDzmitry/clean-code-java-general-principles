@@ -7,7 +7,6 @@ import java.util.Date;
 
 public class AccountDetails implements Account {
     private Date birth;
-    private int age;
     private BigDecimal balance;
     private Date startDate;
 
@@ -37,13 +36,4 @@ public class AccountDetails implements Account {
     public void setBalance(BigDecimal balance) {
         this.balance = balance;
     }
-
-    public int getAge() {
-        return age;
-    }
-
-    public void setAge(int age) {
-        this.age = age;
-    }
-
 }

@@ -14,13 +14,10 @@ public class InterestCalculator implements Profitable {
     private static final double SENIOR_PERCENT = 5.5d;
     private static final int BONUS_AGE = 13;
     private static final int LEAP_YEAR_SHIFT = 1;
-
+    private static final int PERCENT_RATIO_CONVERTER = 100;
 
     public BigDecimal calculateInterest(AccountDetails accountDetails) {
-        if (hasAccountBonus(accountDetails)) {
-            return BigDecimal.valueOf(getInterest(accountDetails));
-        }
-        return BigDecimal.ZERO;
+        return hasAccountBonus(accountDetails) ? BigDecimal.valueOf(evaluateInterest(accountDetails)) : BigDecimal.ZERO;
     }
 
     private boolean hasAccountBonus(AccountDetails accountDetails) {
@@ -49,7 +46,7 @@ public class InterestCalculator implements Profitable {
         return endCalendar.get(Calendar.DAY_OF_YEAR) + LEAP_YEAR_SHIFT < startCalendar.get(Calendar.DAY_OF_YEAR);
     }
 
-    private double getInterest(AccountDetails accountDetails) {
+    private double evaluateInterest(AccountDetails accountDetails) {
         if (isAccountReachSeniorAge(accountDetails)) {
             return getInterestBasedOnPercent(accountDetails, SENIOR_PERCENT);
         }
@@ -57,13 +54,17 @@ public class InterestCalculator implements Profitable {
     }
 
     private boolean isAccountReachSeniorAge(AccountDetails accountDetails) {
-        return accountDetails.getAge() >= SENIOR_AGE_TRESHOLD;
+        return calculateAge(accountDetails) >= SENIOR_AGE_TRESHOLD;
+    }
+
+    private int calculateAge(AccountDetails accountDetails) {
+        return getYearsNumberBetweenDate(accountDetails.getBirth(), new Date());
     }
 
     private double getInterestBasedOnPercent(AccountDetails accountDetails, double percent) {
-    double balance = accountDetails.getBalance().doubleValue();
-    int daysFormAccountCreation = getYearsNumberBetweenDate(accountDetails.getStartDate(), new Date());
+        double balance = accountDetails.getBalance().doubleValue();
+        int daysFormAccountCreation = getYearsNumberBetweenDate(accountDetails.getStartDate(), new Date());
 
-        return balance * daysFormAccountCreation * percent / 100;
+        return balance * daysFormAccountCreation * percent / PERCENT_RATIO_CONVERTER;
     }
 }

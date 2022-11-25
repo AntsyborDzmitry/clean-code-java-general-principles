@@ -2,31 +2,27 @@ package com.epam.engx.cleancode.errorhandling.task1.models;
 
 public class Report {
 
-    private String amountType = "";
-    private String errorMessage = "";
-    private double amount;
+    private static final String MESSAGE_FORMAT = "User Total: %s$";
 
-    public void setAmountType(String amountType) {
+    private final double amount;
+    private final String amountType;
+    private final String errorMessage;
+
+    public Report(double amount, String amountType, String errorMessage) {
         this.amountType = amountType;
-    }
-
-    public void setAmount(double amount) {
+        this.errorMessage = errorMessage;
         this.amount = amount;
     }
 
-    public void setErrorMessage(String errorMessage) {
-        this.errorMessage = errorMessage;
-    }
-
-    public String getAmountType(){
+    public String getAmountType() {
         return amountType;
     }
 
     public String getMessage() {
-        if(hasErrorMessage()) {
+        if (hasErrorMessage()) {
             return errorMessage;
         }
-        return "User Total: " + amount + "$";
+        return String.format(MESSAGE_FORMAT, amount);
     }
 
     private boolean hasErrorMessage() {
